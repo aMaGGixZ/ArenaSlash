@@ -1260,10 +1260,11 @@ MonoBehaviour:
   canvas: {fileID: 1721682661}
   animOverController: {fileID: 22100000, guid: 8f9d6e8ccf5f40a468f55c7c9e935402, type: 2}
   throwProjectilePoint: {fileID: 1022374658}
+  debugCube: {fileID: 1218155506324674, guid: 378af35157f3dd84c81c588df584c887, type: 2}
   skillToUseQ: {fileID: 11400000, guid: d4c7d5c63b8c98049b0dc412165c8ac2, type: 2}
-  skillToUseE: {fileID: 0}
+  skillToUseE: {fileID: 11400000, guid: 202076b339693584988d11d5dfddb7b6, type: 2}
   skillToUseR: {fileID: 0}
-  skillToUseSpace: {fileID: 0}
+  skillToUseSpace: {fileID: 11400000, guid: 67f6c6880e8b9394a85f5c59bf7983bb, type: 2}
   globalCanvas: {fileID: 1448817910}
   feetCanvas: {fileID: 385803764}
 --- !u!143 &599953002

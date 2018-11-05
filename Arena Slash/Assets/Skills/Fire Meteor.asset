@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: Fire Meteor
   m_EditorClassIdentifier: 
   cooldown: 1
-  castTime: 1
+  castTime: 2
   rangeIndicator: {fileID: 1537932967303156, guid: bfacedd49043b9f48bf05948589fed48,
     type: 2}
   spriteGUI: {fileID: 21300000, guid: 68b97ec725bc15847a9ab03fde0725d4, type: 3}
@@ -20,7 +20,7 @@ MonoBehaviour:
   projectile: {fileID: 0}
   itsAoe: 1
   AoeRadius: 30
-  rangeRadius: 150
+  rangeRadius: 100
   skillIndicator: {fileID: 1596017757173954, guid: 562bc773b57bd1b4c8f89809a139fd4e,
     type: 2}
   aoeInstance: {fileID: 0}

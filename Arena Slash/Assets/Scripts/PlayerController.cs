@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour {
     public GameObject canvas;
     public AnimatorOverrideController animOverController;
     public Transform throwProjectilePoint;
+    public GameObject debugCube;
 
     [Header("Skills")]
     public SkillScriptableObject skillToUseQ;
@@ -295,6 +296,7 @@ public class PlayerController : MonoBehaviour {
             {
                 case "Q":
                     instantiateAoEPosition = qSkillIndicator.GetComponent<AoEIndicatorBehaviour>().GetHitPositionAoE();
+                    Instantiate(debugCube, instantiateAoEPosition, debugCube.transform.rotation);
                     break;
                 case "E":
                     instantiateAoEPosition = eSkillIndicator.GetComponent<AoEIndicatorBehaviour>().GetHitPositionAoE();
