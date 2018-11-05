@@ -15,6 +15,9 @@ public class SkillScriptableObject : ScriptableObject {
     public GameObject projectile;
 
     [Header("AoE Skills")]
-    public float rangeRadius;
+    public bool itsAoe;
+    public float AoeRadius; // AoE where it's gonna deal the effect.
+    public float rangeRadius; // Range players have to cast the skill.
     public GameObject skillIndicator;
+    public GameObject aoeInstance;
 }

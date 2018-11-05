@@ -39,9 +39,11 @@ public class PlayerController : MonoBehaviour {
     float moveMagnitude;
     CharacterController controller;
     GameObject projectileToShoot;
+    Vector3 instantiateAoEPosition;
 
     // Feet canvas variables
-    GameObject qIndicator, eIndicator, rIndicator, spaceIndicator;
+    GameObject qRangeIndicator, eRangeIndicator, rRangeIndicator, spaceRangeIndicator;
+    GameObject qSkillIndicator, eSkillIndicator, rSkillIndicator, spaceSkillIndicator;
 
     #endregion
 
@@ -64,6 +66,8 @@ public class PlayerController : MonoBehaviour {
         }
         Movement();
         SetParentToChildPosition();
+
+        Debugging();
     }
 
     void Movement() {
@@ -86,16 +90,8 @@ public class PlayerController : MonoBehaviour {
         controller.Move(new Vector3(inputDirection.x, vSpeed, inputDirection.z) / 10 * moveSpeed);
     }
 
-    void CalculateMoveDirection() {
-        Debug.DrawRay(transform.position, new Vector3(moveDirection.x, 0, moveDirection.y) * 10, Color.red);
-        Debug.DrawRay(transform.position, inputDirection * 10, Color.blue);
-        moveAngle = Vector3.Angle(newMoveDir, inputDirection);
-
-        Vector3 cross = Vector3.Cross(newMoveDir, inputDirection);
-        if (cross.y < 0) moveAngle = -moveAngle;
-    }
-
-    void CalculateRotation() {
+    void CalculateRotation()
+    {
         playerPos = Camera.main.WorldToScreenPoint(transform.position);
         mousePos = Input.mousePosition;
         moveDirection = mousePos - playerPos;
@@ -107,8 +103,11 @@ public class PlayerController : MonoBehaviour {
         transform.rotation = Quaternion.Euler(0, -rotationAngle, 0);
     }
 
-    float AngleBetweenPoints(Vector3 a, Vector3 b) {
-        return Mathf.Atan2(a.y - b.y, a.x - b.x) * Mathf.Rad2Deg;
+    void CalculateMoveDirection() {
+        moveAngle = Vector3.Angle(newMoveDir, inputDirection);
+
+        Vector3 cross = Vector3.Cross(newMoveDir, inputDirection);
+        if (cross.y < 0) moveAngle = -moveAngle;
     }
 
     void Attack() {
@@ -180,23 +179,23 @@ public class PlayerController : MonoBehaviour {
         {
             case "Q":
                 qAvaliable = false;
-                if (qIndicator != null)
-                qIndicator.SetActive(true);
+                if (qRangeIndicator != null)
+                    qRangeIndicator.SetActive(true);
                 break;
             case "E":
                 eAvaliable = false;
-                if (eIndicator != null)
-                eIndicator.SetActive(true);
+                if (eRangeIndicator != null)
+                eRangeIndicator.SetActive(true);
                 break;
             case "R":
                 rAvaliable = false;
-                if (rIndicator != null)
-                rIndicator.SetActive(true);
+                if (rRangeIndicator != null)
+                rRangeIndicator.SetActive(true);
                 break;
             case "Space":
                 spaceAvaliable = false;
-                if (spaceIndicator != null)
-                spaceIndicator.SetActive(true);
+                if (spaceRangeIndicator != null)
+                spaceRangeIndicator .SetActive(true);
                 break;
             default:
                 Debug.Log("Default case reached. PlayerController.cs/CastSkill");
@@ -207,31 +206,111 @@ public class PlayerController : MonoBehaviour {
             projectileToShoot = stu.projectile;
         }
 
+        if (stu.itsAoe) {
+            switch (input)
+            {
+                case "Q":
+                    qAvaliable = false;
+                    qRangeIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.rangeRadius, stu.rangeRadius);
+                    qSkillIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.AoeRadius, stu.AoeRadius);
+                    qSkillIndicator.GetComponent<AoEIndicatorBehaviour>().rangeRadius = stu.rangeRadius;
+                    qSkillIndicator.SetActive(true);
+                    break;
+                case "E":
+                    eAvaliable = false;
+                    eRangeIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.rangeRadius, stu.rangeRadius);
+                    eSkillIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.AoeRadius, stu.AoeRadius);
+                    eSkillIndicator.GetComponent<AoEIndicatorBehaviour>().rangeRadius = stu.rangeRadius;
+                    eSkillIndicator.SetActive(true);
+                    break;
+                case "R":
+                    rAvaliable = false;
+                    rRangeIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.rangeRadius, stu.rangeRadius);
+                    rSkillIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.AoeRadius, stu.AoeRadius);
+                    rSkillIndicator.GetComponent<AoEIndicatorBehaviour>().rangeRadius = stu.rangeRadius;
+                    rSkillIndicator.SetActive(true);
+                    break;
+                case "Space":
+                    spaceAvaliable = false;
+                    spaceRangeIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.rangeRadius, stu.rangeRadius);
+                    spaceSkillIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.AoeRadius, stu.AoeRadius);
+                    spaceSkillIndicator.GetComponent<AoEIndicatorBehaviour>().rangeRadius = stu.rangeRadius;
+                    spaceSkillIndicator.SetActive(true);
+                    break;
+                default:
+                    Debug.Log("Default case reached. PlayerController.cs/CastSkill");
+                    break;
+            }
+        }
+
         yield return new WaitForSeconds(stu.castTime);
 
         StartCoroutine(SkillCooldown(stu, input));
+
         switch (input)
         {
             case "Q":
-                if (qIndicator != null)
-                qIndicator.SetActive(false);
+                if (qRangeIndicator != null) {
+                    qRangeIndicator.SetActive(false);
+                }
+                if (qSkillIndicator != null) {
+                    qSkillIndicator.SetActive(false);
+                }
                 break;
             case "E":
-                if (eIndicator != null)
-                eIndicator.SetActive(false);
+                if (eRangeIndicator != null) {
+                    eRangeIndicator.SetActive(false);
+                }
+                if (eSkillIndicator != null)
+                {
+                    eSkillIndicator.SetActive(false);
+                }
                 break;
             case "R":
-                if (rIndicator != null)
-                rIndicator.SetActive(false);
+                if (rRangeIndicator != null) {
+                    rRangeIndicator.SetActive(false);
+                }
+                if (rSkillIndicator != null)
+                {
+                    rSkillIndicator.SetActive(false);
+                }
                 break;
             case "Space":
-                if (spaceIndicator != null)
-                spaceIndicator.SetActive(false);
+                if (spaceRangeIndicator != null) {
+                    spaceRangeIndicator.SetActive(false);
+
+                }
+                if (spaceSkillIndicator != null)
+                {
+                    spaceSkillIndicator.SetActive(false);
+                }
                 break;
             default:
                 Debug.Log("Default case reached. PlayerController.cs/CastSkill");
                 break;
         }
+
+        if (stu.itsAoe) {
+            switch (input)
+            {
+                case "Q":
+                    instantiateAoEPosition = qSkillIndicator.GetComponent<AoEIndicatorBehaviour>().GetHitPositionAoE();
+                    break;
+                case "E":
+                    instantiateAoEPosition = eSkillIndicator.GetComponent<AoEIndicatorBehaviour>().GetHitPositionAoE();
+                    break;
+                case "R":
+                    instantiateAoEPosition = rSkillIndicator.GetComponent<AoEIndicatorBehaviour>().GetHitPositionAoE();
+                    break;
+                case "Space":
+                    instantiateAoEPosition = spaceSkillIndicator.GetComponent<AoEIndicatorBehaviour>().GetHitPositionAoE();
+                    break;
+                default:
+                    Debug.Log("Default case reached. PlayerController.cs/CastSkill");
+                    break;
+            }
+        }
+
         canvas.SetActive(false);
         casting = false;
         animator.SetTrigger(input);
@@ -285,48 +364,88 @@ public class PlayerController : MonoBehaviour {
         if (skillToUseQ != null) {
             globalCanvas.GetComponent<HUDManager>().qImageHUD.sprite = skillToUseQ.spriteGUI;
             if (skillToUseQ.rangeIndicator != null)
-            InstantiateSkillIndicator(skillToUseQ, "Q");
+                InstantiateRangeIndicator(skillToUseQ, "Q");
+            if (skillToUseQ.skillIndicator != null) {
+                InstantiateSkillIndicator(skillToUseQ, "Q");
+            }
         }
         if (skillToUseE != null)
         {
             globalCanvas.GetComponent<HUDManager>().eImageHUD.sprite = skillToUseE.spriteGUI;
             if (skillToUseE.rangeIndicator != null)
+                InstantiateRangeIndicator(skillToUseE, "E");
+            if (skillToUseE.skillIndicator != null)
+            {
                 InstantiateSkillIndicator(skillToUseE, "E");
+            }
         }
         if (skillToUseR != null)
         {
             globalCanvas.GetComponent<HUDManager>().rImageHUD.sprite = skillToUseR.spriteGUI;
             if (skillToUseR.rangeIndicator != null)
+                InstantiateRangeIndicator(skillToUseR, "R");
+            if (skillToUseR.skillIndicator != null)
+            {
                 InstantiateSkillIndicator(skillToUseR, "R");
+            }
         }
         if (skillToUseSpace != null)
         {
             globalCanvas.GetComponent<HUDManager>().spaceImageHUD.sprite = skillToUseSpace.spriteGUI;
             if (skillToUseSpace.rangeIndicator != null)
+                InstantiateRangeIndicator(skillToUseSpace, "Space");
+            if (skillToUseSpace.skillIndicator != null)
+            {
                 InstantiateSkillIndicator(skillToUseSpace, "Space");
+            }
         }
     }
 
     // TODO: Make it removable and addable.
-    void InstantiateSkillIndicator(SkillScriptableObject stu, string input) {
+    void InstantiateRangeIndicator(SkillScriptableObject stu, string input) {
         GameObject inst = Instantiate(stu.rangeIndicator, feetCanvas.transform);
 
         switch (input) {
             case "Q":
-                qIndicator = inst;
-                qIndicator.SetActive(false);
+                qRangeIndicator = inst;
+                qRangeIndicator.SetActive(false);
                 break;
             case "E":
-                eIndicator = inst;
-                eIndicator.SetActive(false);
+                eRangeIndicator = inst;
+                eRangeIndicator.SetActive(false);
                 break;
             case "R":
-                rIndicator = inst;
-                rIndicator.SetActive(false);
+                rRangeIndicator = inst;
+                rRangeIndicator.SetActive(false);
                 break;
             case "Space":
-                spaceIndicator = inst;
-                spaceIndicator.SetActive(false);
+                spaceRangeIndicator = inst;
+                spaceRangeIndicator.SetActive(false);
+                break;
+        }
+    }
+
+    void InstantiateSkillIndicator(SkillScriptableObject stu, string input)
+    {
+        GameObject inst = Instantiate(stu.skillIndicator, feetCanvas.transform);
+
+        switch (input)
+        {
+            case "Q":
+                qSkillIndicator = inst;
+                qSkillIndicator.SetActive(false);
+                break;
+            case "E":
+                eSkillIndicator = inst;
+                eSkillIndicator.SetActive(false);
+                break;
+            case "R":
+                rSkillIndicator = inst;
+                rSkillIndicator.SetActive(false);
+                break;
+            case "Space":
+                spaceSkillIndicator = inst;
+                spaceSkillIndicator.SetActive(false);
                 break;
         }
     }
@@ -334,5 +453,10 @@ public class PlayerController : MonoBehaviour {
     void AnimatorStats() {
         animator.SetFloat("MoveMagnitude", moveMagnitude);
         animator.SetFloat("MoveAngle", moveAngle);
+    }
+
+    void Debugging() {
+        Debug.DrawRay(transform.position, new Vector3(moveDirection.x, 0, moveDirection.y) * 10, Color.red);
+        Debug.DrawRay(transform.position, inputDirection * 10, Color.blue);
     }
 }
