@@ -29,6 +29,10 @@ public class AnimatorEvents : MonoBehaviour {
         parentController.ShootProjectile();
     }
 
+    public void FireAoE() {
+        parentController.FireAoE();
+    }
+
     void EnableMovement(bool state) {
         parentController.MoveDisabledState(!state);
     }

@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 23723851053442952}
   - component: {fileID: 65482769862215632}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Debug Red Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

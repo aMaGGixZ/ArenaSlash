@@ -9,12 +9,11 @@ public class PlayerController : MonoBehaviour {
     public event Action skillUsed; //Subs: CanvasPlayer.cs/CastSkill
 
     public float moveSpeed = 5f;
-    public float gravity = 20f;
+    public float castingMoveSpeed = 1f;
     public Animator animator;
     public GameObject canvas;
     public AnimatorOverrideController animOverController;
     public Transform throwProjectilePoint;
-    public GameObject debugCube;
 
     [Header("Skills")]
     public SkillScriptableObject skillToUseQ;
@@ -38,8 +37,10 @@ public class PlayerController : MonoBehaviour {
     float rotationAngle;
     float vSpeed;
     float moveMagnitude;
+    float finalMoveSpeed;
     CharacterController controller;
     GameObject projectileToShoot;
+    GameObject aoeToCast;
     Vector3 instantiateAoEPosition;
 
     // Feet canvas variables
@@ -48,16 +49,17 @@ public class PlayerController : MonoBehaviour {
 
     #endregion
 
-    void Start () {
+    void Start() {
         controller = GetComponent<CharacterController>();
         canvas.SetActive(false);
+        finalMoveSpeed = moveSpeed;
 
         SetHUDImages();
 
         qAvaliable = true; eAvaliable = true; rAvaliable = true; spaceAvaliable = true;
-	}
+    }
 
-    void Update () {
+    void Update() {
         if (!moveDisabled) {
             CalculateRotation();
             CalculateMoveDirection();
@@ -88,7 +90,7 @@ public class PlayerController : MonoBehaviour {
         {
             vSpeed += Physics.gravity.y * Time.deltaTime;
         }
-        controller.Move(new Vector3(inputDirection.x, vSpeed, inputDirection.z) / 10 * moveSpeed);
+        controller.Move(new Vector3(inputDirection.x, vSpeed, inputDirection.z) / 10 * finalMoveSpeed);
     }
 
     void CalculateRotation()
@@ -124,7 +126,7 @@ public class PlayerController : MonoBehaviour {
                 StartCoroutine(CastSkill(skillToUseQ, "Q"));
             }
             else {
-                animOverController["Q"] = null; 
+                animOverController["Q"] = null;
             }
         }
         if (Input.GetButtonDown("SkillE") && !casting && !moveDisabled && eAvaliable)
@@ -159,6 +161,10 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    void setMoveSpeed(float speed) {
+        finalMoveSpeed = speed;
+    }
+
     // Set the parent position to children's for moving animations.
     public void SetParentToChildPosition() {
         Vector3 childWorldPosition = animator.transform.position;
@@ -175,6 +181,7 @@ public class PlayerController : MonoBehaviour {
         canvas.SetActive(true);
         skillUsed(stu);
         animOverController[input] = stu.motion;
+        setMoveSpeed(castingMoveSpeed);
 
         switch (input)
         {
@@ -212,6 +219,7 @@ public class PlayerController : MonoBehaviour {
             {
                 case "Q":
                     qAvaliable = false;
+                    aoeToCast = skillToUseQ.aoeInstance;
                     qRangeIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.rangeRadius, stu.rangeRadius);
                     qSkillIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.AoeRadius, stu.AoeRadius);
                     qSkillIndicator.GetComponent<AoEIndicatorBehaviour>().rangeRadius = stu.rangeRadius;
@@ -219,6 +227,7 @@ public class PlayerController : MonoBehaviour {
                     break;
                 case "E":
                     eAvaliable = false;
+                    aoeToCast = skillToUseE.aoeInstance;
                     eRangeIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.rangeRadius, stu.rangeRadius);
                     eSkillIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.AoeRadius, stu.AoeRadius);
                     eSkillIndicator.GetComponent<AoEIndicatorBehaviour>().rangeRadius = stu.rangeRadius;
@@ -226,6 +235,7 @@ public class PlayerController : MonoBehaviour {
                     break;
                 case "R":
                     rAvaliable = false;
+                    aoeToCast = skillToUseR.aoeInstance;
                     rRangeIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.rangeRadius, stu.rangeRadius);
                     rSkillIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.AoeRadius, stu.AoeRadius);
                     rSkillIndicator.GetComponent<AoEIndicatorBehaviour>().rangeRadius = stu.rangeRadius;
@@ -233,6 +243,7 @@ public class PlayerController : MonoBehaviour {
                     break;
                 case "Space":
                     spaceAvaliable = false;
+                    aoeToCast = skillToUseSpace.aoeInstance;
                     spaceRangeIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.rangeRadius, stu.rangeRadius);
                     spaceSkillIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(stu.AoeRadius, stu.AoeRadius);
                     spaceSkillIndicator.GetComponent<AoEIndicatorBehaviour>().rangeRadius = stu.rangeRadius;
@@ -296,7 +307,6 @@ public class PlayerController : MonoBehaviour {
             {
                 case "Q":
                     instantiateAoEPosition = qSkillIndicator.GetComponent<AoEIndicatorBehaviour>().GetHitPositionAoE();
-                    Instantiate(debugCube, instantiateAoEPosition, debugCube.transform.rotation);
                     break;
                 case "E":
                     instantiateAoEPosition = eSkillIndicator.GetComponent<AoEIndicatorBehaviour>().GetHitPositionAoE();
@@ -313,6 +323,7 @@ public class PlayerController : MonoBehaviour {
             }
         }
 
+        setMoveSpeed(moveSpeed);
         canvas.SetActive(false);
         casting = false;
         animator.SetTrigger(input);
@@ -360,6 +371,10 @@ public class PlayerController : MonoBehaviour {
     // Called from AnimatorEvents.cs
     public void ShootProjectile() {
         Instantiate(projectileToShoot, throwProjectilePoint.position, throwProjectilePoint.rotation);
+    }
+
+    public void FireAoE() {
+        Instantiate(aoeToCast, instantiateAoEPosition, aoeToCast.transform.rotation);
     }
 
     void SetHUDImages() {
